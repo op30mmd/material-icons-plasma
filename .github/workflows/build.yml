@@ -1,0 +1,37 @@
+name: Build & Lint
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y inkscape librsvg2-bin optipng imagemagick jq python3-pip libxi6
+          pip install pyyaml pillow cairosvg
+
+      - name: Checkout Material Symbols
+        uses: actions/checkout@v4
+        with:
+          repository: google/material-design-icons
+          path: material-design-icons
+
+      - name: Run build script
+        run: ./tools/build.py --ci --material-path material-design-icons
+
+      - name: Validate icons
+        run: |
+          for s in 16 22 24 32 48; do
+            if [ ! -d material3-plasma/${s}x${s} ]; then
+              echo "Missing directory: material3-plasma/${s}x${s}"
+            fi
+          done
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: material3-plasma
+          path: material3-plasma
