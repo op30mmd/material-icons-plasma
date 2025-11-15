@@ -189,4 +189,10 @@ If any step fails, halt, report the error, and await manual mapping fixes instea
 
 ---
 
+## 8. General Notes
+
+use github actions to download the huge material icon pack and i guess you know how to use it. maybe by seeing the original names with an ls first and writing an script to rename them to freedesktop compilant names. you have storage limitations in your environment
+
+---
+
 Happy creating!
