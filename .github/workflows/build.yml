@@ -13,13 +13,18 @@ jobs:
           sudo apt-get install -y inkscape librsvg2-bin optipng imagemagick jq python3-pip libxi6 subversion
           pip install pyyaml pillow cairosvg
 
-      - name: Checkout Material Symbols sparsely
+      - name: Sparse checkout Material Symbols
         run: |
-          mkdir -p material-design-icons
-          svn checkout https://github.com/google/material-design-icons/trunk material-design-icons/trunk
+          mkdir material-design-icons
+          cd material-design-icons
+          git init
+          git remote add origin https://github.com/google/material-design-icons.git
+          git config core.sparseCheckout true
+          echo "symbols" >> .git/info/sparse-checkout
+          git pull --depth=1 origin main
 
       - name: Run build script
-        run: ./tools/build.py --ci --material-path material-design-icons/trunk
+        run: ./tools/build.py --ci --material-path material-design-icons
 
       - name: Validate icons
         run: |
