@@ -16,10 +16,10 @@ jobs:
       - name: Checkout Material Symbols sparsely
         run: |
           mkdir -p material-design-icons
-          svn checkout https://github.com/google/material-design-icons/trunk/symbols material-design-icons/symbols
+          svn checkout https://github.com/google/material-design-icons/trunk material-design-icons/trunk
 
       - name: Run build script
-        run: ./tools/build.py --ci --material-path material-design-icons
+        run: ./tools/build.py --ci --material-path material-design-icons/trunk
 
       - name: Validate icons
         run: |
