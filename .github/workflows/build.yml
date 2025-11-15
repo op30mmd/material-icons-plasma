@@ -10,14 +10,13 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y inkscape librsvg2-bin optipng imagemagick jq python3-pip libxi6
+          sudo apt-get install -y inkscape librsvg2-bin optipng imagemagick jq python3-pip libxi6 subversion
           pip install pyyaml pillow cairosvg
 
-      - name: Checkout Material Symbols
-        uses: actions/checkout@v4
-        with:
-          repository: google/material-design-icons
-          path: material-design-icons
+      - name: Checkout Material Symbols sparsely
+        run: |
+          mkdir -p material-design-icons
+          svn checkout https://github.com/google/material-design-icons/trunk/symbols material-design-icons/symbols
 
       - name: Run build script
         run: ./tools/build.py --ci --material-path material-design-icons
