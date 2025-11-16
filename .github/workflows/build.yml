@@ -23,6 +23,9 @@ jobs:
           echo "symbols" >> .git/info/sparse-checkout
           git pull --depth=1 origin main
 
+      - name: List contents of material-design-icons
+        run: ls -R material-design-icons
+
       - name: Run build script
         run: ./tools/build.py --ci --material-path material-design-icons
 

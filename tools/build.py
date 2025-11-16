@@ -99,7 +99,7 @@ def main():
         print("Error: mapping.csv not found!")
         return
 
-    material_symbols_dir = args.material_path / "symbols" / "variable"
+    material_symbols_dir = args.material_path / "symbols"
     if not material_symbols_dir.exists():
         print(f"Error: Material Symbols not found at: {material_symbols_dir}")
         print("Please provide the correct path using --material-path")
