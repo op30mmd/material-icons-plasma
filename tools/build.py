@@ -18,14 +18,18 @@ def get_args():
         default=Path("material-design-icons"),
         help="Path to the checked-out material-design-icons repository.",
     )
+    parser.add_argument(
+        "--theme",
+        type=str,
+        choices=["light", "dark"],
+        default="light",
+        help="The color variant to build (light or dark).",
+    )
     return parser.parse_args()
 
-def normalize_svg(source_path, dest_path):
+def normalize_svg(source_path, dest_path, theme="light"):
     """
-    Normalize an SVG using Inkscape CLI.
-    - Export as plain SVG
-    - Vacuum defs
-    - Replace hardcoded fills with 'currentColor'
+    Normalize an SVG using Inkscape CLI and set the fill color.
     """
     if not source_path.exists():
         print(f"Warning: Source icon not found: {source_path}")
@@ -43,20 +47,19 @@ def normalize_svg(source_path, dest_path):
     ]
     subprocess.run(command, check=True, capture_output=True, text=True)
 
-    # Use XML parsing to robustly set currentColor
+    # Set fill color based on theme
+    fill_color = "#232629" if theme == "light" else "#eff0f1" # Breeze light/dark text colors
+
     tree = ET.parse(dest_path)
     root = tree.getroot()
-
-    # Register the SVG namespace
     ET.register_namespace("", "http://www.w3.org/2000/svg")
 
-    # Find all shape elements and set their fill to currentColor
     shape_elements = [
         "path", "rect", "circle", "ellipse", "polygon", "polyline", "line"
     ]
     for shape_name in shape_elements:
         for element in root.findall(f".//{{http://www.w3.org/2000/svg}}{shape_name}"):
-            element.set("fill", "currentColor")
+            element.set("fill", fill_color)
 
     tree.write(dest_path, xml_declaration=True)
 
@@ -82,12 +85,13 @@ def rasterize_png(source_svg, dest_dir):
         # Optimize PNG
         subprocess.run(["optipng", "-o7", "-quiet", str(dest_png)], check=True)
 
-def generate_index_theme(theme_dir, dir_entries):
+def generate_index_theme(theme_dir, dir_entries, theme="light"):
     """
     Generate the index.theme file.
     """
+    theme_name = f"Material 3 (Plasma {theme.capitalize()})"
     content = f"""[Icon Theme]
-Name=Material 3 (Plasma)
+Name={theme_name}
 Comment=Material You symbols adapted for KDE Plasma.
 Inherits=breeze
 Example=folder
@@ -114,7 +118,7 @@ def main():
         print("Please provide the correct path using --material-path")
         return
 
-    theme_dir = Path("material3-plasma")
+    theme_dir = Path(f"material3-plasma-{args.theme}")
     normalized_dir = Path("src/normalized")
     theme_dir.mkdir(exist_ok=True)
     normalized_dir.mkdir(parents=True, exist_ok=True)
@@ -149,7 +153,7 @@ def main():
             normalized_svg = normalized_dir / f"{material_id}.svg"
 
             # 1. Normalize the upstream glyph
-            normalize_svg(source_svg, normalized_svg)
+            normalize_svg(source_svg, normalized_svg, args.theme)
 
             # 2. Place scalable icon in theme directory
             scalable_dir = theme_dir / "scalable" / context
@@ -169,9 +173,9 @@ def main():
 
 
     # 4. Generate index.theme
-    generate_index_theme(theme_dir, dir_entries)
+    generate_index_theme(theme_dir, dir_entries, args.theme)
 
-    print("Build complete.")
+    print(f"Build complete for {args.theme} theme.")
 
 if __name__ == "__main__":
     main()
