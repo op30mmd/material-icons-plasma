@@ -5,6 +5,7 @@ import csv
 import os
 import re
 import subprocess
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 def get_args():
@@ -42,14 +43,22 @@ def normalize_svg(source_path, dest_path):
     ]
     subprocess.run(command, check=True, capture_output=True, text=True)
 
-    # Replace all fill colors with currentColor for theme adaptability
-    with open(dest_path, "r") as f:
-        content = f.read()
+    # Use XML parsing to robustly set currentColor
+    tree = ET.parse(dest_path)
+    root = tree.getroot()
 
-    content = re.sub(r'fill="[^"]*"', 'fill="currentColor"', content)
+    # Register the SVG namespace
+    ET.register_namespace("", "http://www.w3.org/2000/svg")
 
-    with open(dest_path, "w") as f:
-        f.write(content)
+    # Find all shape elements and set their fill to currentColor
+    shape_elements = [
+        "path", "rect", "circle", "ellipse", "polygon", "polyline", "line"
+    ]
+    for shape_name in shape_elements:
+        for element in root.findall(f".//{{http://www.w3.org/2000/svg}}{shape_name}"):
+            element.set("fill", "currentColor")
+
+    tree.write(dest_path)
 
 def rasterize_png(source_svg, dest_dir):
     """
