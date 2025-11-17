@@ -18,14 +18,14 @@ jobs:
           git clone --filter=blob:none --no-checkout https://github.com/google/material-design-icons.git material-design-icons
           cd material-design-icons
           git sparse-checkout init --cone
-          git sparse-checkout set symbols
+          git sparse-checkout set src
           git checkout main
 
       - name: List contents of material-design-icons
         run: ls -R material-design-icons
 
       - name: Run build script
-        run: ./tools/build.py --ci --material-path material-design-icons
+        run: ./tools/build.py --ci --material-path material-design-icons/src
 
       - name: Validate icons
         run: |

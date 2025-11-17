@@ -99,9 +99,9 @@ def main():
         print("Error: mapping.csv not found!")
         return
 
-    material_symbols_dir = args.material_path / "symbols"
-    if not material_symbols_dir.exists():
-        print(f"Error: Material Symbols not found at: {material_symbols_dir}")
+    material_src_dir = args.material_path
+    if not material_src_dir.exists():
+        print(f"Error: Material source directory not found at: {material_src_dir}")
         print("Please provide the correct path using --material-path")
         return
 
@@ -120,8 +120,13 @@ def main():
 
             print(f"Processing: {kde_name} ({material_id}) in {context}")
 
-            # Define paths
-            source_svg = material_symbols_dir / f"{material_id}.svg"
+            # Find the source SVG file
+            source_svg_files = list(material_src_dir.rglob(f"**/{material_id}.svg"))
+            if not source_svg_files:
+                print(f"Warning: Material icon '{material_id}' not found.")
+                continue
+            source_svg = source_svg_files[0]
+
             normalized_svg = normalized_dir / f"{material_id}.svg"
 
             # 1. Normalize the upstream glyph
