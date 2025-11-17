@@ -1,0 +1,39 @@
+name: Build & Lint
+on: [push, pull_request]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y inkscape librsvg2-bin optipng imagemagick jq python3-pip libxi6
+          pip install pyyaml pillow cairosvg
+
+      - name: Sparse checkout Material Symbols
+        run: |
+          git clone --filter=blob:none --no-checkout https://github.com/google/material-design-icons.git material-design-icons
+          cd material-design-icons
+          git sparse-checkout init --cone
+          git sparse-checkout set src
+          git checkout main
+
+      - name: List contents of material-design-icons
+        run: ls -R material-design-icons
+
+      - name: Build light theme
+        run: ./tools/build.py --ci --material-path material-design-icons/src --theme=light
+
+      - name: Build dark theme
+        run: ./tools/build.py --ci --material-path material-design-icons/src --theme=dark
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: material3-plasma-themes
+          path: |
+            material3-plasma-light
+            material3-plasma-dark
