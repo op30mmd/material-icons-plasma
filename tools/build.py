@@ -3,6 +3,7 @@
 import argparse
 import csv
 import os
+import re
 import subprocess
 from pathlib import Path
 
@@ -41,12 +42,11 @@ def normalize_svg(source_path, dest_path):
     ]
     subprocess.run(command, check=True, capture_output=True, text=True)
 
-    # Replace fill colors with currentColor
+    # Replace all fill colors with currentColor for theme adaptability
     with open(dest_path, "r") as f:
         content = f.read()
 
-    content = content.replace('fill="#000000"', 'fill="currentColor"')
-    content = content.replace('fill="black"', 'fill="currentColor"')
+    content = re.sub(r'fill="[^"]*"', 'fill="currentColor"', content)
 
     with open(dest_path, "w") as f:
         f.write(content)
