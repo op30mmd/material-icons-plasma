@@ -120,12 +120,17 @@ def main():
 
             print(f"Processing: {kde_name} ({material_id}) in {context}")
 
-            # Find the source SVG file
-            source_svg_files = list(material_src_dir.rglob(f"**/{material_id}.svg"))
-            if not source_svg_files:
-                print(f"Warning: Material icon '{material_id}' not found.")
+            # Find the source icon directory
+            source_icon_dirs = list(material_src_dir.rglob(f"**/{material_id}"))
+            if not source_icon_dirs:
+                print(f"Warning: Material icon directory '{material_id}' not found.")
                 continue
-            source_svg = source_svg_files[0]
+
+            # Construct the path to the default "Filled" style SVG
+            source_svg = source_icon_dirs[0] / "materialicons" / "24px.svg"
+            if not source_svg.exists():
+                print(f"Warning: Default SVG not found for icon '{material_id}' at {source_svg}")
+                continue
 
             normalized_svg = normalized_dir / f"{material_id}.svg"
 
