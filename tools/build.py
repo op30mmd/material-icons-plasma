@@ -58,7 +58,7 @@ def normalize_svg(source_path, dest_path):
         for element in root.findall(f".//{{http://www.w3.org/2000/svg}}{shape_name}"):
             element.set("fill", "currentColor")
 
-    tree.write(dest_path)
+    tree.write(dest_path, xml_declaration=True)
 
 def rasterize_png(source_svg, dest_dir):
     """
