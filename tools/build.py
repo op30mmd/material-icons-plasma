@@ -126,10 +126,15 @@ def main():
                 print(f"Warning: Material icon directory '{material_id}' not found.")
                 continue
 
-            # Construct the path to the default "Filled" style SVG
-            source_svg = source_icon_dirs[0] / "materialicons" / "24px.svg"
-            if not source_svg.exists():
-                print(f"Warning: Default SVG not found for icon '{material_id}' at {source_svg}")
+            source_svg = None
+            for icon_dir in source_icon_dirs:
+                potential_svg = icon_dir / "materialicons" / "24px.svg"
+                if potential_svg.exists():
+                    source_svg = potential_svg
+                    break
+
+            if not source_svg:
+                print(f"Warning: Default SVG not found for icon '{material_id}' in any of the found directories.")
                 continue
 
             normalized_svg = normalized_dir / f"{material_id}.svg"
